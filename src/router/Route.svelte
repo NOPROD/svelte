@@ -1,3 +1,7 @@
+<style>
+
+</style>
+
 <script>
   import { onDestroy } from "svelte";
   import { curRoute } from "./../store";
@@ -9,10 +13,6 @@
   onDestroy(unsubscribe);
 </script>
 
-<style>
-
-</style>
-
 <div class="main-container">
-  <svelte:component this={component} />
+  <svelte:component this="{component}" />
 </div>

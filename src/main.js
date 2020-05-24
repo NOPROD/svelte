@@ -6,5 +6,5 @@ const app = new App({
     name: "world",
   },
 });
-
+window.app = app;
 export default app;

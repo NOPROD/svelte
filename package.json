@@ -15,9 +15,12 @@
     "rollup-plugin-livereload": "^1.0.0",
     "rollup-plugin-svelte": "^5.0.3",
     "rollup-plugin-terser": "^5.1.2",
-    "svelte": "^3.0.0"
+    "svelte": "^3.20.1"
   },
   "dependencies": {
-    "sirv-cli": "^0.4.4"
+    "material-components-web": "^6.0.0",
+    "sirv-cli": "^0.4.4",
+    "svelte-i18n": "^3.0.3",
+    "tailwindcss": "^1.4.6"
   }
 }
