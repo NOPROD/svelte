@@ -1,12 +1,14 @@
-import svelte from "rollup-plugin-svelte";
+import path from "path";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import livereload from "rollup-plugin-livereload";
-import { terser } from "rollup-plugin-terser";
+import svelte from "rollup-plugin-svelte";
 import postcss from "rollup-plugin-postcss";
+import babel from "@rollup/plugin-babel";
+import { terser } from "rollup-plugin-terser";
 
-const production = !process.env.ROLLUP_WATCH;
-
+const mode = process.env.NODE_ENV;
+const dev = mode === "development";
+const legacy = !!process.env.SAPPER_LEGACY_BUILD;
 const onwarn = (warning, onwarn) => {
   if (
     warning.code === "CIRCULAR_DEPENDENCY" &&
@@ -21,6 +23,28 @@ const onwarn = (warning, onwarn) => {
 
   onwarn(warning);
 };
+const dedupe = (importee) =>
+  importee === "svelte" || importee.startsWith("svelte/");
+const postcssOptions = () => ({
+  extensions: [".scss", ".sass"],
+  extract: false,
+  minimize: true,
+  use: [
+    [
+      "sass",
+      {
+        includePaths: [
+          "./src/theme",
+          "./node_modules",
+          // This is only needed because we're using a local module. :-/
+          // Normally, you would not need this line.
+          path.resolve(__dirname, "..", "node_modules"),
+        ],
+      },
+    ],
+  ],
+});
+
 export default {
   input: "src/main.js",
   output: {
@@ -31,56 +55,40 @@ export default {
   },
   plugins: [
     svelte({
-      css: (css) => {
-        css.write("public/build/bundle.css");
-      },
+      dev,
+      hydratable: true,
+      emitCss: false,
+      css: true,
     }),
-
     resolve({
       browser: true,
-      dedupe: (importee) =>
-        importee === "svelte" || importee.startsWith("svelte/"),
+      dedupe,
     }),
     commonjs(),
-    postcss({
-      extensions: [".scss", ".sass"],
-      extract: "public/build/material.css",
-      minimize: true,
-      use: [
-        [
-          "sass",
-          {
-            includePaths: ["./src", "./node_modules"],
-          },
+
+    postcss(postcssOptions()),
+
+    legacy &&
+      babel({
+        extensions: [".js", ".mjs", ".html", ".svelte"],
+        runtimeHelpers: true,
+        exclude: ["node_modules/@babel/**"],
+        presets: [
+          [
+            "@babel/preset-env",
+            {
+              targets: "> 0.25%, not dead",
+            },
+          ],
         ],
-      ],
-    }),
+        plugins: [],
+      }),
 
-    !production && serve(),
-
-    !production && livereload("public"),
-
-    production && terser(),
+    !dev &&
+      terser({
+        module: true,
+      }),
   ],
-  watch: {
-    clearScreen: false,
-  },
+
   onwarn,
 };
-
-function serve() {
-  let started = false;
-
-  return {
-    writeBundle() {
-      if (!started) {
-        started = true;
-
-        require("child_process").spawn("npm", ["run", "start", "--", "--dev"], {
-          stdio: ["ignore", "inherit", "inherit"],
-          shell: true,
-        });
-      }
-    },
-  };
-}

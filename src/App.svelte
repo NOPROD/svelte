@@ -1,5 +1,5 @@
 <style>
-
+  @import "./theme/index.scss";
 </style>
 
 <script>
