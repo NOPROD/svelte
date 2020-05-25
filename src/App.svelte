@@ -12,7 +12,7 @@
 <!-- Navigation goes here -->
 <Link page="{{ path: '/', name: 'Home' }}" />
 <Link page="{{ path: '/about', name: 'About' }}" />
-
+<TopBar />
 {#if $isLoading}
   Please wait...
 {:else}

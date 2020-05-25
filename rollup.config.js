@@ -3,9 +3,24 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
+import postcss from "rollup-plugin-postcss";
 
 const production = !process.env.ROLLUP_WATCH;
 
+const onwarn = (warning, onwarn) => {
+  if (
+    warning.code === "CIRCULAR_DEPENDENCY" &&
+    /[/\\]@sapper[/\\]/.test(warning.message)
+  ) {
+    return;
+  }
+
+  if (warning.code === "THIS_IS_UNDEFINED") {
+    return;
+  }
+
+  onwarn(warning);
+};
 export default {
   input: "src/main.js",
   output: {
@@ -16,42 +31,41 @@ export default {
   },
   plugins: [
     svelte({
-      // enable run-time checks when not in production
-      dev: !production,
-      // we'll extract any component CSS out into
-      // a separate file - better for performance
       css: (css) => {
         css.write("public/build/bundle.css");
       },
     }),
 
-    // If you have external dependencies installed from
-    // npm, you'll most likely need these plugins. In
-    // some cases you'll need additional configuration -
-    // consult the documentation for details:
-    // https://github.com/rollup/plugins/tree/master/packages/commonjs
     resolve({
       browser: true,
       dedupe: (importee) =>
         importee === "svelte" || importee.startsWith("svelte/"),
     }),
     commonjs(),
+    postcss({
+      extensions: [".scss", ".sass"],
+      extract: "public/build/material.css",
+      minimize: true,
+      use: [
+        [
+          "sass",
+          {
+            includePaths: ["./src", "./node_modules"],
+          },
+        ],
+      ],
+    }),
 
-    // In dev mode, call `npm run start` once
-    // the bundle has been generated
     !production && serve(),
 
-    // Watch the `public` directory and refresh the
-    // browser on changes when not in production
     !production && livereload("public"),
 
-    // If we're building for production (npm run build
-    // instead of npm run dev), minify
     production && terser(),
   ],
   watch: {
     clearScreen: false,
   },
+  onwarn,
 };
 
 function serve() {
