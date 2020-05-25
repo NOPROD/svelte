@@ -18,6 +18,11 @@
     "svelte": "^3.20.1"
   },
   "dependencies": {
+    "@material/animation": "^6.0.0",
+    "@material/card": "^6.0.0",
+    "@material/elevation": "^6.0.0",
+    "@material/layout-grid": "^6.0.0",
+    "@material/top-app-bar": "^6.0.0",
     "material-components-web": "^6.0.0",
     "sirv-cli": "^0.4.4",
     "svelte-i18n": "^3.0.3",
