@@ -20,7 +20,7 @@
     "rollup-plugin-postcss": "^3.1.1",
     "rollup-plugin-svelte": "^5.0.3",
     "rollup-plugin-terser": "^5.1.2",
-    "svelte": "^3.20.1"
+    "svelte": "^3.49.0"
   },
   "dependencies": {
     "@material/animation": "^6.0.0",
